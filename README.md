@@ -3,6 +3,10 @@ couchbase-odm
 
 A simple Object Data Mapper for Couchbase.
 
+Installation
+------------
+Simply pull this repository or install with `npm install couchbase-odm`.
+
 Usage
 -----
 

@@ -1,0 +1,24 @@
+{
+  "name": "couchbase-odm",
+  "version": "0.1.0",
+  "description": "A simple Object Data Mapper for Couchbase",
+  "main": "odm.js",
+  "dependencies": {
+	  "node-uuid": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jessevandersar/couchbase-odm.git"
+  },
+  "keywords": [
+    "couchbase",
+    "odm",
+    "database",
+    "views"
+  ],
+  "author": "Jesse van der Sar",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/jessevandersar/couchbase-odm/issues"
+  }
+}

@@ -20,15 +20,17 @@ u.username = 'jessevandersar';
 console.log(u._id); /* --> automatically generated UUIDv4-id */
 console.log(u._type); /* --> 'User' */
 
-u.save();
+u.save(function(result) {
+  console.log(result); /* { object: <saved object>, result: <CAS> } */
+});
 ```
 
 ### Retrieving and updating an object
 ```javascript
 User.getById(id, function(u) {
-	u.username = 'new_username';
+  u.username = 'new_username';
 	
-	u.save();
+  u.save();
 });
 ```
 
@@ -47,4 +49,11 @@ User.getByUsername('jessevandersar', function(results) {
 An 'all'-view will be added by default, usable with `User.getAll(...)`.
 Also, views that already exist in the design document will be automatically imported from Couchbase.
 
-_Note: imported views with names like 'specific\_view' will be usable with `User.specificView(key, callback)`._
+_Note: imported views with names like 'specific<underscore>view' will be usable with `User.specificView(key, callback)`._
+
+Note
+----
+
+This module is in a very early state. It hasn't been tested in production yet, but has worked for me during development. Please let me know about your thoughts and/or bugs that you've encountered!
+
+**Github repo:** https://github.com/jessevandersar/couchbase-odm

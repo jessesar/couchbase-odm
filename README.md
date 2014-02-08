@@ -17,8 +17,8 @@ var User = odm.createModel('User', { name: 'String',
 var u = new User({ name: 'Jesse' });
 u.username = 'jessevandersar';
 
-console.log(u._id); # --> automatically generated UUIDv4-id
-console.log(u._type); # --> 'User'
+console.log(u._id); /* --> automatically generated UUIDv4-id */
+console.log(u._type); /* --> 'User' */
 
 u.save();
 ```

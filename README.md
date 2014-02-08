@@ -16,6 +16,11 @@ var User = odm.createModel('User', { name: 'String',
 						  username: { type: 'String', index: true } }, couchbase_connection);
 ```
 
+### Adding static functions
+```javascript
+User.sayHello = function() { console.log('My name is '+ this.name); };
+```
+
 ### Adding an object
 ```javascript
 var u = new User({ name: 'Jesse' });
@@ -23,6 +28,8 @@ u.username = 'jessevandersar';
 
 console.log(u._id); /* --> automatically generated UUIDv4-id */
 console.log(u._type); /* --> 'User' */
+
+u.sayHello(); /* --> 'My name is Jesse' */
 
 u.save(function(result) {
   console.log(result); /* { object: <saved object>, result: <CAS> } */

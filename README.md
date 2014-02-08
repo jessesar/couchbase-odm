@@ -54,6 +54,7 @@ _Note: imported views with names containing underscores will be usable in camelc
 Notes
 -----
 
-This module is in a very early state. It hasn't been tested in production yet, but has worked for me during development. Please let me know about your thoughts and/or bugs that you've encountered!
+This module is in a very early state. It hasn't been tested in production yet, but has worked for me during development, and has served as a nice excercise in working with Couchbase and creating Node modules.
+Please let me know about your thoughts and/or bugs that you've encountered!
 
 **Github repo:** https://github.com/jessevandersar/couchbase-odm

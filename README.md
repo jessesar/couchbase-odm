@@ -49,7 +49,7 @@ User.getByUsername('jessevandersar', function(results) {
 An 'all'-view will be added by default, usable with `User.getAll(...)`.
 Also, views that already exist in the design document will be automatically imported from Couchbase.
 
-_Note: imported views with names like 'specific\_view' will be usable with `User.specificView(key, callback)`._
+_Note: imported views with names containing underscores will be usable in camelcase with `User.specificView(key, callback)`._
 
 Notes
 -----

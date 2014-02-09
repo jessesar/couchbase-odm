@@ -2,7 +2,7 @@ var uuid = require('node-uuid');
 
 module.exports = {};
 
-module.exports.createModel = function(name, fields, connection) {
+module.exports.createModel = function(name, fields, connection, cb) {
 
   var model = function Model(values) {
     if(!values) values = {};
@@ -62,8 +62,6 @@ module.exports.createModel = function(name, fields, connection) {
       
       if(field.index) {
         model.indexes.push(key);
-        
-        model.setViewFunc('by'+ key, 'getBy'+ (key.charAt(0).toUpperCase() + key.slice(1)));
       }
     } else {
       // No options given, value = type
@@ -112,17 +110,37 @@ module.exports.createModel = function(name, fields, connection) {
     } else {
       var views = {};
     }
-    
+
+	var indexViews = {};
     model.indexes.forEach(function(index) {
       var key = 'by_'+ index;
-      views[key] = { map: "function (doc, meta) {\n  if(doc._type == \'"+ name +"\') {\n    emit(doc."+ index +", doc);\n  }\n}" };
+      indexViews[key] = { map: "function (doc, meta) {\n  if(doc._type == \'"+ name +"\') {\n    emit(doc."+ index +", doc);\n  }\n}" };
     });
     
-    views['all'] = { map: "function (doc, meta) {\n  if(doc._type == \'"+ name +"\') {\n    emit(null, doc);\n  }\n}" };
+    for(var viewName in views) {
+	    if(viewName != 'all') {
+		    if(!indexViews[viewName]) {
+			    
+			    indexViews[viewName] = views[viewName];
+				
+			}
+			
+			var funcName = 'get';
+				
+			viewName.split('_').forEach(function(comp) {
+				funcName += comp.charAt(0).toUpperCase() + comp.slice(1);
+			});
+		
+			model.setViewFunc(viewName, funcName);
+		}
+    };
     
-    connection.setDesignDoc(name, { views: views }, function(err, results) {
+    indexViews['all'] = { map: "function (doc, meta) {\n  if(doc._type == \'"+ name +"\') {\n    emit(null, doc);\n  }\n}" };
+    
+    connection.setDesignDoc(name, { views: indexViews }, function(err, results) {
       if(err) throw err;
       
+      cb(model);
     });
   });
   

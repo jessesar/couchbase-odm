@@ -26,7 +26,9 @@ module.exports.createModel = function(name, fields, connection) {
   model.statics = {};
   
   model.validateField = function(field) {
-    if(field != 'String' && field != 'Number') throw "Invalid field type: "+ field;
+	var fieldTypes = [String, Number, Array, Date];
+  
+    if(fieldTypes.indexOf(field) == -1) throw "Invalid field type: "+ field;
     return true;
   }
   

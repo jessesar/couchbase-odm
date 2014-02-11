@@ -19,7 +19,10 @@ module.exports.createModel = function(name, fields, connection, cb) {
       model.prototype[func] = model.statics[func];
     }
 
-    this._id = uuid.v4();
+	if(!this._id) {
+	    this._id = uuid.v4();
+	}
+	
     this._type = name;
   };
   
@@ -33,20 +36,39 @@ module.exports.createModel = function(name, fields, connection, cb) {
   }
   
   model.setViewFunc = function(viewName, funcName) {
-    model[funcName] = function (value, cb) {      
+    model[funcName] = function (key, options, cb) {      
       var view = connection.view(name, viewName);
-      
-      var q = {};
-      if(viewName != 'all') {
-        q = { key: value };
-      } else {
-        cb = value;
+	  
+      if(typeof(key) == 'function') {
+	    cb = key;
+	  }
+	  
+	  var q = {};
+	  
+      if(typeof(options) == 'function') {
+	    cb = options;
+	  } else {
+	    if(typeof(options) == 'object') {
+		  q = options;
+		}
+	  }
+	  
+	  if(typeof(key) == 'string') {
+        q.key = key;
+      } else if(typeof(key) == 'object') {
+	    q = key;
       }
       
       view.query(q, function(err, results) {
         if(err) throw err;
         
-        cb(results.map(model.unserialize));
+        results = results.map(model.unserialize);
+        
+        if(results.length == 1) {
+	        cb(results[0]);
+        } else {
+	        cb(results);
+        }
       })
     };
   };
@@ -85,6 +107,64 @@ module.exports.createModel = function(name, fields, connection, cb) {
     });
   };
   
+  model.prototype.remove = function(cb) {
+	  connection.remove(this._type +'_'+ this._id, function(err, result) {
+		  if(err) throw err;
+		  
+		  if(cb) {
+			  cb(result);
+		  }
+	  });
+  };
+  
+  model.setupViews = function() {
+	  // Retrieve design document to import existing views
+	  connection.getDesignDoc(name, function(err, doc) {
+	    // Merge with Model views
+	    
+	    if(doc && doc.views) {
+	      var views = doc.views;
+	    } else {
+	      var views = {};
+	    }
+	
+		var indexViews = {};
+	    model.indexes.forEach(function(index) {
+	      var key = 'by_'+ index;
+	      indexViews[key] = { map: "function (doc, meta) {\n  if(doc._type == \'"+ name +"\') {\n    emit(doc."+ index +", doc);\n  }\n}" };
+	    });
+	    
+	    for(var viewName in views) {
+		    if(viewName != 'all') {
+			    if(!indexViews[viewName]) {
+				    
+				    indexViews[viewName] = views[viewName];
+					
+				}
+				
+			}
+	    };
+	    
+	    for(var viewName in indexViews) {
+		    var funcName = 'get';
+				
+			viewName.split('_').forEach(function(comp) {
+				funcName += comp.charAt(0).toUpperCase() + comp.slice(1);
+			});
+		
+			model.setViewFunc(viewName, funcName);
+	    }
+	    
+	    indexViews['all'] = { map: "function (doc, meta) {\n  if(doc._type == \'"+ name +"\') {\n    emit(null, doc);\n  }\n}" };
+	    
+	    connection.setDesignDoc(name, { views: indexViews }, function(err, results) {
+	      if(err) throw err;
+	      
+	      //cb(model);
+	    });
+	  });
+  }
+  
   model.getById = function(id, cb, raw) {
     connection.get(name +'_'+ id, function(err, result) {
       if(err) throw err;
@@ -98,51 +178,8 @@ module.exports.createModel = function(name, fields, connection, cb) {
   };
   
   model.unserialize = function(obj) {
-    return obj.value;
+    return new model(obj.value);
   }
-  
-  // Retrieve design document to import existing views
-  connection.getDesignDoc(name, function(err, doc) {
-    // Merge with Model views
-    
-    if(doc && doc.views) {
-      var views = doc.views;
-    } else {
-      var views = {};
-    }
-
-	var indexViews = {};
-    model.indexes.forEach(function(index) {
-      var key = 'by_'+ index;
-      indexViews[key] = { map: "function (doc, meta) {\n  if(doc._type == \'"+ name +"\') {\n    emit(doc."+ index +", doc);\n  }\n}" };
-    });
-    
-    for(var viewName in views) {
-	    if(viewName != 'all') {
-		    if(!indexViews[viewName]) {
-			    
-			    indexViews[viewName] = views[viewName];
-				
-			}
-			
-			var funcName = 'get';
-				
-			viewName.split('_').forEach(function(comp) {
-				funcName += comp.charAt(0).toUpperCase() + comp.slice(1);
-			});
-		
-			model.setViewFunc(viewName, funcName);
-		}
-    };
-    
-    indexViews['all'] = { map: "function (doc, meta) {\n  if(doc._type == \'"+ name +"\') {\n    emit(null, doc);\n  }\n}" };
-    
-    connection.setDesignDoc(name, { views: indexViews }, function(err, results) {
-      if(err) throw err;
-      
-      cb(model);
-    });
-  });
   
   return model; 
 };

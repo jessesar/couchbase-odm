@@ -16,6 +16,8 @@ var User = odm.createModel('User', { name: 'String',
 						  username: { type: 'String', index: true } }, couchbase_connection);
 ```
 
+_Chain `.setupViews()` onto the end of `createModel(...)` to automatically set up views based on indexes and import existing views from Couchbase._
+
 ### Adding static functions
 ```javascript
 User.sayHello = function() { console.log('My name is '+ this.name); };
@@ -45,10 +47,17 @@ User.getById(id, function(u) {
 });
 ```
 
+### Deleting an object
+```javascript
+User.getById(id, function(u) {
+  u.remove();
+});
+```
+
 Indexes/Views
 -------------
 
-Adding the 'index'-option to a field, as with the 'username'-field in the example, automatically creates a very basic view for querying this object-type with the field as a key.
+Adding the 'index'-option to a field, as with the 'username'-field in the example, automatically creates a very basic view for querying this object-type with the field as a key. Note that calling `.setupViews()` on the model is a prerequisite.
 
 ### Querying an object type (view)
 ```javascript
@@ -56,6 +65,8 @@ User.getByUsername('jessevandersar', function(results) {
   console.log(results);
 });
 ```
+
+_Secondary view options (like limit, descending and stale) can be added as an object in the second parameter._
 
 An 'all'-view will be added by default, usable with `User.getAll(...)`.
 Also, views that already exist in the design document will be automatically imported from Couchbase.

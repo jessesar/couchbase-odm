@@ -163,6 +163,8 @@ module.exports.createModel = function(name, fields, connection, cb) {
 	      //cb(model);
 	    });
 	  });
+	  
+	  return this;
   }
   
   model.getById = function(id, cb, raw) {

@@ -64,7 +64,7 @@ module.exports.createModel = function(name, fields, connection, cb) {
         
         results = results.map(model.unserialize);
         
-        if(results.length == 1) {
+        if(q.limit && q.limit == 1) {
 	        cb(results[0]);
         } else {
 	        cb(results);

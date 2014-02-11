@@ -1,6 +1,6 @@
 {
   "name": "couchbase-odm",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A simple Object Data Mapper for Couchbase",
   "main": "odm.js",
   "dependencies": {

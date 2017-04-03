@@ -90,7 +90,7 @@ module.exports.createScheme = function(name, fields, connection, cb) {
       view.query(q, function(err, results) {
         if(err) throw err;
         
-        if(results[0] && results[0].value._id) {
+        if(results[0] && results[0].value && isNaN(results[0].value) && !q.raw) {
 	        // Regular document
         
 	        results = results.map(model.unserialize);

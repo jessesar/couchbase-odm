@@ -12,11 +12,11 @@ Usage
 
 ### Creating a model
 ```javascript
-var User = odm.createModel('User', { name: 'String',
+var User = odm.createScheme('User', { name: 'String',
 						  username: { type: 'String', index: true } }, couchbase_connection);
 ```
 
-_Chain `.setupViews()` onto the end of `createModel(...)` to automatically set up views based on indexes and import existing views from Couchbase._
+_Chain `.setupViews()` onto the end of `createScheme(...)` to automatically set up views based on indexes and import existing views from Couchbase._
 
 ### Adding static functions
 ```javascript
